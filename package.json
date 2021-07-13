@@ -4,13 +4,13 @@
   "description": "Move section of you Markdown file",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.58.0"
+    "vscode": "^1.50.0"
   },
   "categories": [
     "Other"
   ],
   "activationEvents": [
-    "onCommand:markdown-move.helloWorld"
+    "onCommand:markdown-move.move-down"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -18,7 +18,7 @@
       {
         "when": "resourceLangId == md",
         "command": "markdown-move.move-down",
-        "title": "Move down"
+        "title": "Markdown move: Move down"
       }
     ]
   },

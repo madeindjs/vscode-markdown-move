@@ -1,10 +1,12 @@
-import { commands, ExtensionContext, window } from "vscode";
+import {commands, ExtensionContext} from "vscode";
+import {moveDown} from "./lib";
 
 export function activate(context: ExtensionContext) {
   console.log('Congratulations, your extension "markdown-move" is now active!');
 
   let disposable = commands.registerCommand("markdown-move.move-down", () => {
-    window.showInformationMessage("Hello World from markdown-move!");
+    console.log("hello");
+    moveDown();
   });
 
   context.subscriptions.push(disposable);
