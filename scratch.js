@@ -42,13 +42,14 @@ Lorem ipsum
 /**
  * @param {string} content
  * @param {number} position
+ * @returns {string | undefined}
  */
-function getCurrentSection(content, position) {
+function getSection(content, position) {
   const scanner = stringScanner(content);
   scanner.cursor(position);
 
   // find title of current cursor
-  const token = scanner.previous(/^(\#+)/);
+  const token = scanner.previous(/(\#+)/);
 
   if (!token) {
     return undefined;
@@ -59,8 +60,8 @@ function getCurrentSection(content, position) {
 
   // go to next title
   scanner.next(/\n/);
-  const nextHeader = new RegExp(`(\\#){1,${sectionDepth}}`, "g");
-  scanner.next(nextHeader);
+  const nextHeaderRe = new RegExp(`(\\#){1,${sectionDepth}}\ `, "g");
+  const nextHeader = scanner.next(nextHeaderRe);
 
   const endLinePosition = scanner.offset;
 
@@ -72,24 +73,53 @@ function getCurrentSection(content, position) {
   //   nextHeader,
   // });
 
-  return content.slice(beginLinePosition, endLinePosition - 1);
+  return (
+    content.slice(
+      beginLinePosition,
+      endLinePosition - (nextHeader?.length ?? -1)
+    ) || undefined
+  );
 }
 
-describe("getCurrentSection", () => {
+/**
+ * @param {string} content
+ * @param {number} position
+ * @returns {string}
+ */
+function moveDown(content, position) {
+  const section = getSection(content, position);
+
+  if (section === undefined) {
+    return content;
+  }
+
+  const beginSection = content.indexOf(section);
+  const endSection = beginSection + section.length;
+
+  const nextSection = getSection(content, endSection);
+
+  // todo replace section by nextSection
+  console.log({section, nextSection, endSection});
+}
+
+describe("getSection", () => {
   it("expected to find section 1.2", () => {
-    assert.strictEqual(
-      getCurrentSection(md, 100),
-      "## Title 1.2\n\nLorem ipsum\n\n"
-    );
+    assert.strictEqual(getSection(md, 100), "## Title 1.2\n\nLorem ipsum\n\n");
+  });
+  it("expected to find section 1.2 for 125", () => {
+    assert.strictEqual(getSection(md, 125), "## Title 1.2\n\nLorem ipsum\n\n");
   });
   it("expected to find section 2.1", () => {
-    assert.strictEqual(
-      getCurrentSection(md, 150),
-      "## Title 2.1\n\nLorem ipsum\n\n"
-    );
+    assert.strictEqual(getSection(md, 150), "## Title 2.1\n\nLorem ipsum\n\n");
   });
 
   it("expected to not found when outside of document", () => {
-    assert.strictEqual(getCurrentSection(md, 200), undefined);
+    assert.strictEqual(getSection(md, 100000), undefined);
+  });
+});
+
+describe("moveDown", () => {
+  it("works", () => {
+    moveDown(md, 100);
   });
 });
