@@ -1,5 +1,6 @@
 const stringScanner = require("string-scanner");
 const {assert} = require("chai");
+const {describe, it} = require("mocha");
 
 // @ts-check
 
@@ -48,6 +49,11 @@ function getCurrentSection(content, position) {
 
   // find title of current cursor
   const token = scanner.previous(/^(\#+)/);
+
+  if (!token) {
+    return undefined;
+  }
+
   const sectionDepth = token.length;
   const beginLinePosition = scanner.offset;
 
@@ -69,14 +75,21 @@ function getCurrentSection(content, position) {
   return content.slice(beginLinePosition, endLinePosition - 1);
 }
 
-assert.strictEqual(
-  getCurrentSection(md, 100),
-  "## Title 1.2\n\nLorem ipsum\n\n",
-  "expected to find section 1.2"
-);
+describe("getCurrentSection", () => {
+  it("expected to find section 1.2", () => {
+    assert.strictEqual(
+      getCurrentSection(md, 100),
+      "## Title 1.2\n\nLorem ipsum\n\n"
+    );
+  });
+  it("expected to find section 2.1", () => {
+    assert.strictEqual(
+      getCurrentSection(md, 150),
+      "## Title 2.1\n\nLorem ipsum\n\n"
+    );
+  });
 
-assert.strictEqual(
-  getCurrentSection(md, 150),
-  "## Title 2.1\n\nLorem ipsum\n\n",
-  "expected to find section 2.1"
-);
+  it("expected to not found when outside of document", () => {
+    assert.strictEqual(getCurrentSection(md, 200), undefined);
+  });
+});

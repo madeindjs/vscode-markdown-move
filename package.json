@@ -29,7 +29,7 @@
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
-    "test:unit": "node ./out/test/runTest.js"
+    "test:unit": "mocha scratch.js"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",
