@@ -3,6 +3,10 @@ const {assert} = require("chai");
 const {describe, it} = require("mocha");
 
 function log(...args) {
+  if (process.env.NODE_ENV === "testing") {
+    return;
+  }
+
   const message = args.shift();
   console.log(`LOG ${message}`, ...args);
 }
@@ -47,7 +51,7 @@ Lorem ipsum
 /**
  * @param {string} content
  * @param {number} position
- * @returns {{section: string, position: {begin: number, end: muber}} | undefined}
+ * @returns {{section: string, position: {begin: number, end: number}} | undefined}
  */
 function getSection(content, position) {
   if (position > content.length) {
@@ -128,13 +132,6 @@ function moveDown(content, position) {
   const after = content.slice(
     section.position.end + nextSection.section.length + 1
   );
-
-  // console.log({
-  //   nextSection: nextSection.section,
-  //   // before: before,
-  //   section: section.section,
-  //   after,
-  // });
 
   return [before, nextSection.section, section.section, after].join("");
 }
