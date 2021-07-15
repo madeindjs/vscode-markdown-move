@@ -1,29 +1,56 @@
 import {commands, ExtensionContext, Range, window} from "vscode";
-import {moveDown} from "./lib";
+import {moveDown, moveUp} from "./lib";
 
 export function activate(context: ExtensionContext) {
-  let disposable = commands.registerCommand("markdown-move.move-down", () => {
-    const textEditor = window.activeTextEditor;
+  let moveDownDisposable = commands.registerCommand(
+    "markdown-move.move-down",
+    () => {
+      const textEditor = window.activeTextEditor;
 
-    if (textEditor === undefined) {
-      window.showErrorMessage("You do not have any text editor opened");
-      return;
+      if (textEditor === undefined) {
+        window.showErrorMessage("You do not have any text editor opened");
+        return;
+      }
+
+      const content = textEditor.document.getText();
+      const position = textEditor.selection.active;
+
+      const begin = textEditor.document.positionAt(0);
+      const end = textEditor.document.positionAt(content.length);
+
+      const newContent = moveDown(content, position.character);
+
+      textEditor.edit((editBuilder) =>
+        editBuilder.replace(new Range(begin, end), newContent)
+      );
     }
+  );
 
-    const content = textEditor.document.getText();
-    const position = textEditor.selection.active;
+  let moveUpDisposable = commands.registerCommand(
+    "markdown-move.move-up",
+    () => {
+      const textEditor = window.activeTextEditor;
 
-    const begin = textEditor.document.positionAt(0);
-    const end = textEditor.document.positionAt(content.length);
+      if (textEditor === undefined) {
+        window.showErrorMessage("You do not have any text editor opened");
+        return;
+      }
 
-    const newContent = moveDown(content, position.character);
+      const content = textEditor.document.getText();
+      const position = textEditor.selection.active;
 
-    textEditor.edit((editBuilder) =>
-      editBuilder.replace(new Range(begin, end), newContent)
-    );
-  });
+      const begin = textEditor.document.positionAt(0);
+      const end = textEditor.document.positionAt(content.length);
 
-  context.subscriptions.push(disposable);
+      const newContent = moveUp(content, position.character);
+
+      textEditor.edit((editBuilder) =>
+        editBuilder.replace(new Range(begin, end), newContent)
+      );
+    }
+  );
+
+  context.subscriptions.push(moveDownDisposable, moveUpDisposable);
 }
 
 export function deactivate() {}

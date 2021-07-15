@@ -10,15 +10,21 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:markdown-move.move-down"
+    "onCommand:markdown-move.move-down",
+    "onCommand:markdown-move.move-up"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
         "when": "resourceLangId == md",
+        "command": "markdown-move.move-up",
+        "title": "Markdown move: Move section up"
+      },
+      {
+        "when": "resourceLangId == md",
         "command": "markdown-move.move-down",
-        "title": "Markdown move: Move down"
+        "title": "Markdown move: Move section down"
       }
     ]
   },
