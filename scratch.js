@@ -136,6 +136,32 @@ function moveDown(content, position) {
   return [before, nextSection.section, section.section, after].join("");
 }
 
+/**
+ * @param {string} content
+ * @param {number} position
+ * @returns {string}
+ */
+function moveUp(content, position) {
+  const section = getSection(content, position);
+
+  if (section === undefined) {
+    return content;
+  }
+
+  const previousSection = getSection(content, section.position.begin - 1);
+
+  if (previousSection === undefined) {
+    return content;
+  }
+
+  const before = content.slice(0, previousSection.position.begin);
+  const after = content.slice(
+    previousSection.position.end + section.section.length + 1
+  );
+
+  return [before, section.section, previousSection.section, after].join("");
+}
+
 describe("getSection", () => {
   it("expected to find section 1.2", () => {
     assert.strictEqual(
@@ -200,5 +226,45 @@ Lorem ipsum
 Lorem ipsum
 `;
     assert.strictEqual(moveDown(md, 100), expectedMd);
+  });
+});
+
+describe("moveUp", () => {
+  it("works", () => {
+    const expectedMd = `---
+title: testing markdown
+---
+
+before title
+
+# Title 1
+
+Lorem ipsum
+
+## Title 1.2
+
+Lorem ipsum
+
+## Title 1.1
+
+Lorem ipsum
+
+# Title 2
+
+Lorem ipsum
+
+## Title 2.1
+
+Lorem ipsum
+
+# Title 3
+
+Lorem ipsum
+
+## Title 3.1
+
+Lorem ipsum
+`;
+    assert.strictEqual(moveUp(md, 100), expectedMd);
   });
 });
