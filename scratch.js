@@ -2,6 +2,11 @@ const stringScanner = require("string-scanner");
 const {assert} = require("chai");
 const {describe, it} = require("mocha");
 
+function log(...args) {
+  const message = args.shift();
+  console.log(`LOG ${message}`, ...args);
+}
+
 // @ts-check
 
 const md = `---
@@ -42,11 +47,20 @@ Lorem ipsum
 /**
  * @param {string} content
  * @param {number} position
- * @returns {string | undefined}
+ * @returns {{section: string, position: {begin: number, end: muber}} | undefined}
  */
 function getSection(content, position) {
+  if (position > content.length) {
+    return undefined;
+  }
+
+  log(
+    "try to get section for position started at `%s`",
+    content.slice(position, position + 10)
+  );
   const scanner = stringScanner(content);
   scanner.cursor(position);
+  scanner.next(/\n/);
 
   // find title of current cursor
   const token = scanner.previous(/(\#+)/);
@@ -60,10 +74,20 @@ function getSection(content, position) {
 
   // go to next title
   scanner.next(/\n/);
-  const nextHeaderRe = new RegExp(`(\\#){1,${sectionDepth}}\ `, "g");
+  const nextHeaderRe = new RegExp(`\n(\\#){1,${sectionDepth}}\\s`, "g");
   const nextHeader = scanner.next(nextHeaderRe);
 
-  const endLinePosition = scanner.offset;
+  if (!nextHeader) {
+    return {
+      section: content.slice(beginLinePosition),
+      position: {
+        begin: beginLinePosition,
+        end: content.length,
+      },
+    };
+  }
+
+  const endLinePosition = scanner.offset - nextHeader.length;
 
   // console.log({
   //   line,
@@ -73,12 +97,13 @@ function getSection(content, position) {
   //   nextHeader,
   // });
 
-  return (
-    content.slice(
-      beginLinePosition,
-      endLinePosition - (nextHeader?.length ?? -1)
-    ) || undefined
-  );
+  const section = content.slice(beginLinePosition, endLinePosition) + "\n";
+
+  if (section === undefined) {
+    return undefined;
+  }
+
+  return {section, position: {begin: beginLinePosition, end: endLinePosition}};
 }
 
 /**
@@ -93,24 +118,47 @@ function moveDown(content, position) {
     return content;
   }
 
-  const beginSection = content.indexOf(section);
-  const endSection = beginSection + section.length;
+  const nextSection = getSection(content, section.position.end + 1);
 
-  const nextSection = getSection(content, endSection);
+  if (nextSection === undefined) {
+    return content;
+  }
 
-  // todo replace section by nextSection
-  console.log({section, nextSection, endSection});
+  const before = content.slice(0, section.position.begin);
+  const after = content.slice(
+    section.position.end + nextSection.section.length + 1
+  );
+
+  // console.log({
+  //   nextSection: nextSection.section,
+  //   // before: before,
+  //   section: section.section,
+  //   after,
+  // });
+
+  return [before, nextSection.section, section.section, after].join("");
 }
 
 describe("getSection", () => {
   it("expected to find section 1.2", () => {
-    assert.strictEqual(getSection(md, 100), "## Title 1.2\n\nLorem ipsum\n\n");
+    assert.strictEqual(
+      getSection(md, 100).section,
+      "## Title 1.2\n\nLorem ipsum\n\n"
+    );
   });
-  it("expected to find section 1.2 for 125", () => {
-    assert.strictEqual(getSection(md, 125), "## Title 1.2\n\nLorem ipsum\n\n");
+
+  it("expected to find section 2 for 126", () => {
+    assert.strictEqual(
+      getSection(md, 126).section,
+      "# Title 2\n\nLorem ipsum\n\n## Title 2.1\n\nLorem ipsum\n\n"
+    );
   });
+
   it("expected to find section 2.1", () => {
-    assert.strictEqual(getSection(md, 150), "## Title 2.1\n\nLorem ipsum\n\n");
+    assert.strictEqual(
+      getSection(md, 150).section,
+      "## Title 2.1\n\nLorem ipsum\n\n"
+    );
   });
 
   it("expected to not found when outside of document", () => {
@@ -120,6 +168,40 @@ describe("getSection", () => {
 
 describe("moveDown", () => {
   it("works", () => {
-    moveDown(md, 100);
+    const expectedMd = `---
+title: testing markdown
+---
+
+before title
+
+# Title 1
+
+Lorem ipsum
+
+## Title 1.1
+
+Lorem ipsum
+
+# Title 2
+
+Lorem ipsum
+
+## Title 2.1
+
+Lorem ipsum
+
+## Title 1.2
+
+Lorem ipsum
+
+# Title 3
+
+Lorem ipsum
+
+## Title 3.1
+
+Lorem ipsum
+`;
+    assert.strictEqual(moveDown(md, 100), expectedMd);
   });
 });
