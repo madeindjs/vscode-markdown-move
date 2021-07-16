@@ -2,7 +2,7 @@
 
 An extension to qucikly move section in a markdown file.
 
-![screenshot](https://raw.githubusercontent.com/madeindjs/vscode-markdown-move/master/screenshot.webpm)
+![screenshot](https://raw.githubusercontent.com/madeindjs/vscode-markdown-move/master/screenshot.webm)
 
 ## Features
 
