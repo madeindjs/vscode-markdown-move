@@ -10,21 +10,35 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:markdown-move.move-down",
-    "onCommand:markdown-move.move-up"
+    "onCommand:markdown-move.moveDown",
+    "onCommand:markdown-move.moveUp"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
         "when": "resourceLangId == md",
-        "command": "markdown-move.move-up",
+        "command": "markdown-move.moveUp",
         "title": "Markdown move: Move section up"
       },
       {
         "when": "resourceLangId == md",
-        "command": "markdown-move.move-down",
+        "command": "markdown-move.moveDown",
         "title": "Markdown move: Move section down"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "markdown-move.moveUp",
+        "key": "ctrl+shift+pageup",
+        "mac": "cmd+shift+pageup",
+        "when": "editorTextFocus && resourceLangId == md"
+      },
+      {
+        "command": "markdown-move.moveDown",
+        "key": "ctrl+shift+pagedown",
+        "mac": "cmd+shift+pagedown",
+        "when": "editorTextFocus && resourceLangId == md"
       }
     ]
   },

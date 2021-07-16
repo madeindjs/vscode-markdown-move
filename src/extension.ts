@@ -39,11 +39,11 @@ function moveAction(func: (content: string, position: number) => string): void {
 
 export function activate(context: ExtensionContext) {
   let moveDownDisposable = commands.registerCommand(
-    "markdown-move.move-down",
+    "markdown-move.moveDown",
     () => moveAction(moveDown)
   );
 
-  let moveUpDisposable = commands.registerCommand("markdown-move.move-up", () =>
+  let moveUpDisposable = commands.registerCommand("markdown-move.moveUp", () =>
     moveAction(moveUp)
   );
 
