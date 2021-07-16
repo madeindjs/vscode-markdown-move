@@ -1,3 +1,5 @@
+import {Position} from "vscode";
+
 const stringScanner = require("string-scanner");
 
 function log(...args: any[]) {
@@ -114,4 +116,25 @@ export function moveUp(content: string, position: number): string {
   );
 
   return [before, section.section, previousSection.section, after].join("");
+}
+
+export function getCharacterPositionFromPosition(
+  content: string,
+  position: Position | {line: number; character: number}
+): number {
+  const lines = content.split("\n");
+
+  let characterPosition = 0;
+  let lineNumber = 0;
+
+  for (const line of lines) {
+    if (lineNumber === position.line) {
+      return characterPosition + position.character;
+    }
+
+    lineNumber += 1;
+    characterPosition += line.length + 1;
+  }
+
+  return characterPosition;
 }

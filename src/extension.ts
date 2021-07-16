@@ -1,5 +1,5 @@
 import {commands, ExtensionContext, Range, window} from "vscode";
-import {moveDown, moveUp} from "./lib";
+import {getCharacterPositionFromPosition, moveDown, moveUp} from "./lib";
 
 function showWarning(message: string): void {
   window.showWarningMessage(`Markdown Move: ${message}`);
@@ -17,12 +17,16 @@ function moveAction(func: (content: string, position: number) => string): void {
   }
 
   const content = textEditor.document.getText();
-  const position = textEditor.selection.active;
 
   const begin = textEditor.document.positionAt(0);
   const end = textEditor.document.positionAt(content.length);
 
-  const newContent = func(content, position.character);
+  const position = getCharacterPositionFromPosition(
+    content,
+    textEditor.selection.active
+  );
+
+  const newContent = func(content, position);
 
   if (newContent === content) {
     return showWarning("I cannot perform this action");
