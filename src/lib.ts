@@ -1,4 +1,4 @@
-import {Position} from "vscode";
+import { Position } from "vscode";
 
 const stringScanner = require("string-scanner");
 
@@ -13,21 +13,15 @@ function log(...args: any[]) {
 
 interface Section {
   section: string;
-  position: {begin: number; end: number};
+  position: { begin: number; end: number };
 }
 
-export function getSection(
-  content: string,
-  position: number
-): Section | undefined {
+export function getSection(content: string, position: number): Section | undefined {
   if (position > content.length) {
     return undefined;
   }
 
-  log(
-    "try to get section for position started at `%s`",
-    content.slice(position, position + 10)
-  );
+  log("try to get section for position started at `%s`", content.slice(position, position + 10));
   const scanner = stringScanner(content);
   scanner.cursor(position);
   scanner.next(/\n/);
@@ -73,7 +67,7 @@ export function getSection(
     return undefined;
   }
 
-  return {section, position: {begin: beginLinePosition, end: endLinePosition}};
+  return { section, position: { begin: beginLinePosition, end: endLinePosition } };
 }
 
 export function moveDown(content: string, position: number): string {
@@ -90,9 +84,7 @@ export function moveDown(content: string, position: number): string {
   }
 
   const before = content.slice(0, section.position.begin);
-  const after = content.slice(
-    section.position.end + nextSection.section.length + 1
-  );
+  const after = content.slice(section.position.end + nextSection.section.length + 1);
 
   return [before, nextSection.section, section.section, after].join("");
 }
@@ -111,16 +103,14 @@ export function moveUp(content: string, position: number): string {
   }
 
   const before = content.slice(0, previousSection.position.begin);
-  const after = content.slice(
-    previousSection.position.end + section.section.length + 1
-  );
+  const after = content.slice(previousSection.position.end + section.section.length + 1);
 
   return [before, section.section, previousSection.section, after].join("");
 }
 
 export function getCharacterPositionFromPosition(
   content: string,
-  position: Position | {line: number; character: number}
+  position: Position | { line: number; character: number }
 ): number {
   const lines = content.split("\n");
 
@@ -137,4 +127,64 @@ export function getCharacterPositionFromPosition(
   }
 
   return characterPosition;
+}
+
+export function getPreviousTitleLine(lines: string[], position: number): number {
+  let positionIndex = getLineOfPosition(lines, position);
+
+  do {
+    const line = lines[positionIndex];
+
+    if (line.startsWith("#")) {
+      return positionIndex;
+    }
+
+    positionIndex--;
+  } while (positionIndex >= 0);
+
+  throw Error("cannot find previous title");
+}
+
+export function getEndOfSectionLine(lines: string[], position: number, tag: string): number {
+  let positionIndex = getLineOfPosition(lines, position) + 1;
+
+  do {
+    const line = lines[positionIndex];
+
+    if (line.startsWith(tag) && positionIndex !== 0) {
+      return positionIndex - 1;
+    }
+
+    positionIndex--;
+  } while (positionIndex >= 0);
+
+  throw Error("cannot end of section");
+}
+
+/**
+ * @returns index of started / ended line index
+ */
+export function getSectionV2(content: string, position: number): [number, number] {
+  const lines = content.split("\n");
+
+  const titleLine = getPreviousTitleLine(lines, position);
+  const [titleTag] = lines[titleLine].split(" ");
+
+  const lastLine = getEndOfSectionLine(lines, position, titleTag);
+
+  return [titleLine, lastLine];
+}
+
+export function getLineOfPosition(lines: string[], position: number): number {
+  let count = 0;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (position >= count && position <= count + line.length) {
+      return i;
+    }
+    count += line.length;
+  }
+
+  throw Error("Cannot find line for position");
 }
