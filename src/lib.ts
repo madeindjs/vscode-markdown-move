@@ -1,126 +1,44 @@
-import {Position} from "vscode";
-
-const stringScanner = require("string-scanner");
-
-function log(...args: any[]) {
-  if (process.env.NODE_ENV === "testing") {
-    return;
-  }
-
-  const message = args.shift();
-  console.log(`LOG ${message}`, ...args);
-}
-
-interface Section {
-  section: string;
-  position: {begin: number; end: number};
-}
-
-export function getSection(
-  content: string,
-  position: number
-): Section | undefined {
-  if (position > content.length) {
-    return undefined;
-  }
-
-  log(
-    "try to get section for position started at `%s`",
-    content.slice(position, position + 10)
-  );
-  const scanner = stringScanner(content);
-  scanner.cursor(position);
-  scanner.next(/\n/);
-
-  // find title of current cursor
-  const token = scanner.previous(/(\#+)/);
-
-  if (!token) {
-    return undefined;
-  }
-
-  const sectionDepth = token.length;
-  const beginLinePosition = scanner.offset;
-
-  // go to next title
-  scanner.next(/\n/);
-  const nextHeaderRe = new RegExp(`\n(\\#){1,${sectionDepth}}\\s`, "g");
-  const nextHeader = scanner.next(nextHeaderRe);
-
-  if (!nextHeader) {
-    return {
-      section: content.slice(beginLinePosition),
-      position: {
-        begin: beginLinePosition,
-        end: content.length,
-      },
-    };
-  }
-
-  const endLinePosition = scanner.offset - nextHeader.length;
-
-  // console.log({
-  //   line,
-  //   beginLinePosition,
-  //   endLinePosition,
-  //   sectionDepth,
-  //   nextHeader,
-  // });
-
-  const section = content.slice(beginLinePosition, endLinePosition) + "\n";
-
-  if (section === undefined) {
-    return undefined;
-  }
-
-  return {section, position: {begin: beginLinePosition, end: endLinePosition}};
-}
+import { Position } from "vscode";
 
 export function moveDown(content: string, position: number): string {
-  const section = getSection(content, position);
+  const lines = content.split("\n");
+  const positionLine = getLineOfPosition(lines, position);
 
-  if (section === undefined) {
-    return content;
-  }
+  const section = getSectionV2(lines, positionLine);
 
-  const nextSection = getSection(content, section.position.end + 1);
+  const nextSection = getSectionV2(lines, section[1] + 1);
 
-  if (nextSection === undefined) {
-    return content;
-  }
+  const newLines = [
+    ...lines.slice(0, section[0]),
+    ...lines.slice(nextSection[0], nextSection[1] + 1),
+    ...lines.slice(section[0], section[1]),
+    ...lines.slice(nextSection[1]),
+  ];
 
-  const before = content.slice(0, section.position.begin);
-  const after = content.slice(
-    section.position.end + nextSection.section.length + 1
-  );
-
-  return [before, nextSection.section, section.section, after].join("");
+  return newLines.join("\n");
 }
 
 export function moveUp(content: string, position: number): string {
-  const section = getSection(content, position);
+  const lines = content.split("\n");
+  const positionLine = getLineOfPosition(lines, position);
 
-  if (section === undefined) {
-    return content;
-  }
+  const section = getSectionV2(lines, positionLine);
 
-  const previousSection = getSection(content, section.position.begin - 1);
+  const previousSection = getSectionV2(lines, section[0] - 1);
 
-  if (previousSection === undefined) {
-    return content;
-  }
+  const newLines = [
+    ...lines.slice(0, previousSection[0]),
+    ...lines.slice(section[0], section[1] + 1),
+    ...lines.slice(previousSection[0], previousSection[1]),
+    ...lines.slice(section[1]),
+  ];
 
-  const before = content.slice(0, previousSection.position.begin);
-  const after = content.slice(
-    previousSection.position.end + section.section.length + 1
-  );
-
-  return [before, section.section, previousSection.section, after].join("");
+  return newLines.join("\n");
 }
 
 export function getCharacterPositionFromPosition(
   content: string,
-  position: Position | {line: number; character: number}
+  position: Position | { line: number; character: number }
 ): number {
   const lines = content.split("\n");
 
@@ -137,4 +55,62 @@ export function getCharacterPositionFromPosition(
   }
 
   return characterPosition;
+}
+
+export function getPreviousTitleLine(lines: string[], lineIndex: number): number {
+  do {
+    const line = lines[lineIndex];
+
+    if (line.match(/#+ /) !== null) {
+      return lineIndex;
+    }
+
+    lineIndex--;
+  } while (lineIndex >= 0);
+
+  throw Error("cannot find previous title");
+}
+
+export function getEndOfSectionLine(lines: string[], lineIndex: number, sectionDepth: number): number {
+  const nextHeaderRe = new RegExp(`^(\\#){1,${sectionDepth}} `);
+
+  let cursor = lineIndex + 1;
+
+  while (lines[cursor] !== undefined) {
+    const line = lines[cursor];
+
+    if (line.match(nextHeaderRe) && cursor !== 0) {
+      return cursor - 1;
+    }
+
+    cursor++;
+  }
+
+  return lines.length - 1;
+}
+
+/**
+ * @returns index of started / ended line index
+ */
+export function getSectionV2(lines: string[], lineIndex: number): [number, number] {
+  const titleLine = getPreviousTitleLine(lines, lineIndex);
+  const sectionDeep = lines[titleLine].split(" ")[0].length;
+
+  const lastLine = getEndOfSectionLine(lines, lineIndex, sectionDeep);
+
+  return [titleLine, lastLine];
+}
+
+export function getLineOfPosition(lines: string[], position: number): number {
+  let count = 0;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (position >= count && position <= count + line.length) {
+      return i;
+    }
+    count += line.length + 1;
+  }
+
+  throw Error("Cannot find line for position");
 }
