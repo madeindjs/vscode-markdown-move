@@ -2,6 +2,7 @@ import { assert, expect } from "chai";
 import { describe, it } from "mocha";
 import {
   getCharacterPositionFromPosition,
+  getCharPositionOfLine,
   getEndOfSectionLine,
   getLineOfPosition,
   getPreviousTitleLine,
@@ -231,5 +232,19 @@ describe("getSectionV2", () => {
   it("should find for current line", () => {
     const lines = "# 2\n4\n# 8";
     expect(getSectionV2(lines, 4)).deep.eq([0, 1]);
+  });
+});
+
+describe("getCharPositionOfLine", () => {
+  const lines = ["# 2", "4", "# 8"];
+
+  it("should throw for first line", () => {
+    expect(getCharPositionOfLine(lines, 0)).eq(0);
+  });
+  it("should find for second line", () => {
+    expect(getCharPositionOfLine(lines, 1)).eq(4);
+  });
+  it("should throw for third line", () => {
+    expect(getCharPositionOfLine(lines, 2)).eq(6);
   });
 });

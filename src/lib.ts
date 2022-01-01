@@ -90,22 +90,42 @@ export function moveDown(content: string, position: number): string {
 }
 
 export function moveUp(content: string, position: number): string {
-  const section = getSection(content, position);
+  // const section = getSection(content, position);
+  const lines = content.split("\n");
 
-  if (section === undefined) {
+  try {
+    const section = getSectionV2(content, position);
+
+    const previousSectionPosition = getCharPositionOfLine(lines, section[0] - 1);
+    const previousSection = getSectionV2(content, previousSectionPosition);
+
+    return (
+      [
+        ...lines.slice(0, previousSection[0]),
+        ...lines.slice(section[0], section[1]),
+        ...lines.slice(previousSection[0], previousSection[1]),
+        ...lines.slice(section[1] + 1, -1),
+      ].join("\n") + "\n"
+    );
+
+    // const previous;
+  } catch (e) {
+    console.error(e);
     return content;
   }
 
-  const previousSection = getSection(content, section.position.begin - 1);
+  throw Error();
 
-  if (previousSection === undefined) {
-    return content;
-  }
+  // const previousSection = getSection(content, section.position.begin - 1);
 
-  const before = content.slice(0, previousSection.position.begin);
-  const after = content.slice(previousSection.position.end + section.section.length + 1);
+  // if (previousSection === undefined) {
+  //   return content;
+  // }
 
-  return [before, section.section, previousSection.section, after].join("");
+  // const before = content.slice(0, previousSection.position.begin);
+  // const after = content.slice(previousSection.position.end + section.section.length + 1);
+
+  // return [before, section.section, previousSection.section, after].join("");
 }
 
 export function getCharacterPositionFromPosition(
@@ -187,4 +207,14 @@ export function getLineOfPosition(lines: string[], position: number): number {
   }
 
   throw Error("Cannot find line for position");
+}
+
+export function getCharPositionOfLine(lines: string[], lineIndex: number): number {
+  let position = 0;
+
+  for (let i = 0; i < lineIndex; i++) {
+    position += lines[i].length + 1;
+  }
+
+  return position;
 }
