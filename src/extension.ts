@@ -1,5 +1,5 @@
 import { commands, ExtensionContext, TextEditorEdit, window } from "vscode";
-import { moveDown, moveUp } from "./position-moves";
+import { moveDown, moveUp } from "./extension-moves";
 
 function showWarning(message: string): void {
   window.showWarningMessage(`Markdown Move: ${message}`);

@@ -1,5 +1,5 @@
 import { Position, Range, TextEditorEdit } from "vscode";
-import { getSectionV2 } from "./lib";
+import { getSection } from "./lib";
 
 export function sectionToRange(section: [number, number], lines: string[]): Range {
   const from = new Position(section[0], 0);
@@ -10,8 +10,8 @@ export function sectionToRange(section: [number, number], lines: string[]): Rang
 }
 
 export function moveUp(lines: string[], positionLine: number, editor: TextEditorEdit): void {
-  const section = getSectionV2(lines, positionLine);
-  const previousSection = getSectionV2(lines, section[0] - 1);
+  const section = getSection(lines, positionLine);
+  const previousSection = getSection(lines, section[0] - 1);
 
   if (previousSection[1] >= section[0]) {
     previousSection[1] = section[0] - 1;
@@ -28,8 +28,8 @@ export function moveUp(lines: string[], positionLine: number, editor: TextEditor
 }
 
 export function moveDown(lines: string[], positionLine: number, editor: TextEditorEdit): void {
-  const section = getSectionV2(lines, positionLine);
-  const nextSection = getSectionV2(lines, section[1] + 1);
+  const section = getSection(lines, positionLine);
+  const nextSection = getSection(lines, section[1] + 1);
   const newText = [...lines.slice(nextSection[0], nextSection[1] + 1), ...lines.slice(section[0], section[1] + 1)].join(
     "\n"
   );
