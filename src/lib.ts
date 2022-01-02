@@ -1,32 +1,4 @@
-export function moveDown(lines: string[], positionLine: number): string[] {
-  const section = getSectionV2(lines, positionLine);
-
-  const nextSection = getSectionV2(lines, section[1] + 1);
-
-  const newLines = [
-    ...lines.slice(0, section[0]),
-    ...lines.slice(nextSection[0], nextSection[1] + 1),
-    ...lines.slice(section[0], section[1] + 1),
-    ...lines.slice(nextSection[1] + 1),
-  ];
-
-  return newLines;
-}
-
-export function moveUp(lines: string[], positionLine: number): string[] {
-  const section = getSectionV2(lines, positionLine);
-
-  const previousSection = getSectionV2(lines, section[0] - 1);
-
-  const newLines = [
-    ...lines.slice(0, previousSection[0]),
-    ...lines.slice(section[0], section[1] + 1),
-    ...lines.slice(previousSection[0], previousSection[1] + 1),
-    ...lines.slice(section[1] + 1),
-  ];
-
-  return newLines;
-}
+export type Section = [number, number];
 
 export function getPreviousTitleLine(lines: string[], lineIndex: number): number {
   do {
@@ -63,7 +35,7 @@ export function getEndOfSectionLine(lines: string[], lineIndex: number, sectionD
 /**
  * @returns index of started / ended line index
  */
-export function getSectionV2(lines: string[], lineIndex: number): [number, number] {
+export function getSection(lines: string[], lineIndex: number): Section {
   const titleLine = getPreviousTitleLine(lines, lineIndex);
   const sectionDeep = lines[titleLine].split(" ")[0].length;
 
@@ -72,16 +44,32 @@ export function getSectionV2(lines: string[], lineIndex: number): [number, numbe
   return [titleLine, lastLine];
 }
 
-export function getLineOfPosition(lines: string[], position: number): number {
-  let count = 0;
+export function promote(lines: string[], lineIndex: number): string[] {
+  const section = getSection(lines, lineIndex);
+  const newLines = [...lines];
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    if (position >= count && position <= count + line.length) {
-      return i;
+  for (let i = section[0]; i <= section[1]; i++) {
+    const line = newLines[i];
+
+    if (line.match(/^(\#){2,6} +/) !== null) {
+      newLines[i] = line.substring(1);
     }
-    count += line.length + 1;
   }
 
-  throw Error("Cannot find line for position");
+  return newLines;
+}
+
+export function demote(lines: string[], lineIndex: number): string[] {
+  const section = getSection(lines, lineIndex);
+  const newLines = [...lines];
+
+  for (let i = section[0]; i <= section[1]; i++) {
+    const line = newLines[i];
+
+    if (line.match(/^(\#){1,5} +/) !== null) {
+      newLines[i] = "#".concat(line);
+    }
+  }
+
+  return newLines;
 }

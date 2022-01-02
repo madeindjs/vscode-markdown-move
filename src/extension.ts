@@ -1,15 +1,11 @@
-import { commands, ExtensionContext, Range, window } from "vscode";
-import { moveDown, moveUp } from "./lib";
-
-function showWarning(message: string): void {
-  window.showWarningMessage(`Markdown Move: ${message}`);
-}
+import { commands, ExtensionContext, TextEditorEdit, window } from "vscode";
+import { demoteEditor, moveDownEditor, moveUpEditor, promoteEditor } from "./extension-lib";
 
 function showError(message: string): void {
   window.showErrorMessage(`Markdown Move: ${message}`);
 }
 
-function moveAction(func: (line: string[], positionLine: number) => string[]): void {
+function baseAction(func: (line: string[], positionLine: number, editor: TextEditorEdit) => void): void {
   const textEditor = window.activeTextEditor;
 
   if (textEditor === undefined) {
@@ -19,24 +15,20 @@ function moveAction(func: (line: string[], positionLine: number) => string[]): v
   const content = textEditor.document.getText();
   const lines = content.split("\n");
 
-  const begin = textEditor.document.positionAt(0);
-  const end = textEditor.document.positionAt(content.length);
-
-  const newContent = func(lines, textEditor.selection.active.line).join("\n");
-
-  // if (newContent === content) {
-  //   return showWarning("I cannot perform this action");
-  // }
-
-  textEditor.edit((editBuilder) => editBuilder.replace(new Range(begin, end), newContent));
+  try {
+    textEditor.edit((editBuilder) => func(lines, textEditor.selection.active.line, editBuilder));
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 export function activate(context: ExtensionContext) {
-  let moveDownDisposable = commands.registerCommand("markdown-move.moveDown", () => moveAction(moveDown));
-
-  let moveUpDisposable = commands.registerCommand("markdown-move.moveUp", () => moveAction(moveUp));
-
-  context.subscriptions.push(moveDownDisposable, moveUpDisposable);
+  context.subscriptions.push(
+    commands.registerCommand("markdown-move.moveDown", () => baseAction(moveDownEditor)),
+    commands.registerCommand("markdown-move.moveUp", () => baseAction(moveUpEditor)),
+    commands.registerCommand("markdown-move.promote", () => baseAction(promoteEditor)),
+    commands.registerCommand("markdown-move.demote", () => baseAction(demoteEditor))
+  );
 }
 
-export function deactivate() {}
+export function deactivate(_context: ExtensionContext) {}
