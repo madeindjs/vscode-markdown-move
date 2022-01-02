@@ -1,14 +1,6 @@
 import { assert, expect } from "chai";
 import { describe, it } from "mocha";
-import {
-  getCharacterPositionFromPosition,
-  getEndOfSectionLine,
-  getLineOfPosition,
-  getPreviousTitleLine,
-  getSectionV2,
-  moveDown,
-  moveUp,
-} from "./lib";
+import { getEndOfSectionLine, getLineOfPosition, getPreviousTitleLine, getSectionV2, moveDown, moveUp } from "./lib";
 
 const md = `---
 title: testing markdown
@@ -81,7 +73,7 @@ Lorem ipsum
 
 Lorem ipsum
 `;
-    assert.strictEqual(moveDown(md, 100), expectedMd);
+    assert.deepEqual(moveDown(md.split("\n"), 15), expectedMd.split("\n"));
   });
 });
 
@@ -121,56 +113,12 @@ Lorem ipsum
 
 Lorem ipsum
 `;
-    assert.strictEqual(moveUp(md, 100), expectedMd);
-  });
-});
-
-describe("getCharacterPositionFromPosition", () => {
-  const content = "012\n45\n7\n9";
-
-  it("works on first char", () => {
-    const position = { line: 0, character: 0 };
-    const index = getCharacterPositionFromPosition(content, position);
-
-    assert.strictEqual(index, 0);
-    assert.strictEqual(content.charAt(index), "0");
-  });
-
-  it("works on first line", () => {
-    const position = { line: 0, character: 2 };
-    const index = getCharacterPositionFromPosition(content, position);
-
-    assert.strictEqual(index, 2);
-    assert.strictEqual(content.charAt(index), "2");
-  });
-
-  it("works on second line", () => {
-    const position = { line: 1, character: 1 };
-    const index = getCharacterPositionFromPosition(content, position);
-
-    assert.strictEqual(index, 5);
-    assert.strictEqual(content.charAt(index), "5");
-  });
-
-  it("works on third line", () => {
-    const position = { line: 2, character: 0 };
-    const index = getCharacterPositionFromPosition(content, position);
-
-    assert.strictEqual(index, 7);
-    assert.strictEqual(content.charAt(index), "7");
-  });
-
-  it("works on last line", () => {
-    const position = { line: 3, character: 0 };
-    const index = getCharacterPositionFromPosition(content, position);
-
-    assert.strictEqual(index, 9);
-    assert.strictEqual(content.charAt(index), "9");
+    assert.deepEqual(moveUp(md.split("\n"), 15), expectedMd.split("\n"));
   });
 });
 
 describe("getLineOfPosition", () => {
-  const lines = ["012", "45", "6"];
+  const lines = ["012", "45", "7"];
 
   it("should get first line", () => {
     expect(getLineOfPosition(lines, 0)).eq(0);
@@ -179,7 +127,7 @@ describe("getLineOfPosition", () => {
     expect(getLineOfPosition(lines, 4)).eq(1);
   });
   it("should get third line", () => {
-    expect(getLineOfPosition(lines, 6)).eq(2);
+    expect(getLineOfPosition(lines, 7)).eq(2);
   });
 });
 

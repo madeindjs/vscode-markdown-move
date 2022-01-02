@@ -1,9 +1,4 @@
-import { Position } from "vscode";
-
-export function moveDown(content: string, position: number): string {
-  const lines = content.split("\n");
-  const positionLine = getLineOfPosition(lines, position);
-
+export function moveDown(lines: string[], positionLine: number): string[] {
   const section = getSectionV2(lines, positionLine);
 
   const nextSection = getSectionV2(lines, section[1] + 1);
@@ -15,13 +10,10 @@ export function moveDown(content: string, position: number): string {
     ...lines.slice(nextSection[1]),
   ];
 
-  return newLines.join("\n");
+  return newLines;
 }
 
-export function moveUp(content: string, position: number): string {
-  const lines = content.split("\n");
-  const positionLine = getLineOfPosition(lines, position);
-
+export function moveUp(lines: string[], positionLine: number): string[] {
   const section = getSectionV2(lines, positionLine);
 
   const previousSection = getSectionV2(lines, section[0] - 1);
@@ -33,28 +25,7 @@ export function moveUp(content: string, position: number): string {
     ...lines.slice(section[1]),
   ];
 
-  return newLines.join("\n");
-}
-
-export function getCharacterPositionFromPosition(
-  content: string,
-  position: Position | { line: number; character: number }
-): number {
-  const lines = content.split("\n");
-
-  let characterPosition = 0;
-  let lineNumber = 0;
-
-  for (const line of lines) {
-    if (lineNumber === position.line) {
-      return characterPosition + position.character;
-    }
-
-    lineNumber += 1;
-    characterPosition += line.length + 1;
-  }
-
-  return characterPosition;
+  return newLines;
 }
 
 export function getPreviousTitleLine(lines: string[], lineIndex: number): number {
