@@ -1,7 +1,7 @@
 import { Position, Range, TextEditorEdit } from "vscode";
 import { getSectionV2 } from "./lib";
 
-function sectionToRange(section: [number, number], lines: string[]): Range {
+export function sectionToRange(section: [number, number], lines: string[]): Range {
   const from = new Position(section[0], 0);
   const lastCharPosition = lines[section[1]].length;
   const to = new Position(section[1], lastCharPosition);

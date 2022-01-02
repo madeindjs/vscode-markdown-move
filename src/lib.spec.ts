@@ -37,7 +37,7 @@ Lorem ipsum
 Lorem ipsum
 `;
 
-describe("moveDown", () => {
+describe(moveDown.name, () => {
   it("should move title", () => {
     const input = ["# 1", "# 2"];
 
@@ -95,7 +95,7 @@ Lorem ipsum
   });
 });
 
-describe("moveUp", () => {
+describe(moveUp.name, () => {
   it("should move title", () => {
     const input = ["# 1", "# 2"];
 
@@ -147,7 +147,7 @@ Lorem ipsum
   });
 });
 
-describe("getLineOfPosition", () => {
+describe(getLineOfPosition.name, () => {
   const lines = ["012", "45", "7"];
 
   it("should get first line", () => {
@@ -161,7 +161,7 @@ describe("getLineOfPosition", () => {
   });
 });
 
-describe("getPreviousTitleLine", () => {
+describe(getPreviousTitleLine.name, () => {
   it("should find for current line", () => {
     const lines = ["# 234"];
     expect(getPreviousTitleLine(lines, 0)).eq(0);
@@ -173,7 +173,7 @@ describe("getPreviousTitleLine", () => {
   });
 });
 
-describe("getEndOfSectionLine", () => {
+describe(getEndOfSectionLine.name, () => {
   const lines = ["# 2", "4", "# 8"];
   it("should throw for first line", () => {
     expect(getEndOfSectionLine(lines, 0, 1)).eq(1);
@@ -186,7 +186,7 @@ describe("getEndOfSectionLine", () => {
   });
 });
 
-describe("getSectionV2", () => {
+describe(getSectionV2.name, () => {
   const lines = ["# 1", "body 1", "## 1.1", "body 1.1", "# 2"];
 
   it("should find for body line", () => {

@@ -24,7 +24,6 @@ function moveAction(func: (line: string[], positionLine: number, editor: TextEdi
 
 export function activate(context: ExtensionContext) {
   let moveDownDisposable = commands.registerCommand("markdown-move.moveDown", () => moveAction(moveDown));
-
   let moveUpDisposable = commands.registerCommand("markdown-move.moveUp", () => moveAction(moveUp));
 
   context.subscriptions.push(moveDownDisposable, moveUpDisposable);
