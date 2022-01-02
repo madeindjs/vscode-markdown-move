@@ -11,11 +11,23 @@
   ],
   "activationEvents": [
     "onCommand:markdown-move.moveDown",
-    "onCommand:markdown-move.moveUp"
+    "onCommand:markdown-move.moveUp",
+    "onCommand:markdown-move.promote",
+    "onCommand:markdown-move.demote"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
+      {
+        "when": "resourceLangId == md",
+        "command": "markdown-move.promote",
+        "title": "Markdown move: Promote section"
+      },
+      {
+        "when": "resourceLangId == md",
+        "command": "markdown-move.demote",
+        "title": "Markdown move: Demote section"
+      },
       {
         "when": "resourceLangId == md",
         "command": "markdown-move.moveUp",

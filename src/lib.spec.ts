@@ -1,20 +1,6 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
-import { getEndOfSectionLine, getLineOfPosition, getPreviousTitleLine, getSection } from "./lib";
-
-describe(getLineOfPosition.name, () => {
-  const lines = ["012", "45", "7"];
-
-  it("should get first line", () => {
-    expect(getLineOfPosition(lines, 0)).eq(0);
-  });
-  it("should get second line", () => {
-    expect(getLineOfPosition(lines, 4)).eq(1);
-  });
-  it("should get third line", () => {
-    expect(getLineOfPosition(lines, 7)).eq(2);
-  });
-});
+import { demote, getEndOfSectionLine, getPreviousTitleLine, getSection, promote } from "./lib";
 
 describe(getPreviousTitleLine.name, () => {
   it("should find for current line", () => {
@@ -58,5 +44,33 @@ describe(getSection.name, () => {
   });
   it("should find for title 2", () => {
     expect(getSection(lines, 4)).deep.eq([4, 4]);
+  });
+});
+
+describe(promote.name, () => {
+  it("should promote sub header", () => {
+    expect(promote(["# 1", "## 1.1"], 1)).deep.eq(["# 1", "# 1.1"]);
+  });
+
+  it("should promote everything", () => {
+    expect(promote(["# 1", "## 1.1"], 0)).deep.eq(["# 1", "# 1.1"]);
+  });
+
+  it("should promote sub sub header", () => {
+    expect(promote(["# 1", "## 1.1", "### 1.1.1", "# 2"], 2)).deep.eq(["# 1", "## 1.1", "## 1.1.1", "# 2"]);
+  });
+});
+
+describe(demote.name, () => {
+  it("should promote sub header", () => {
+    expect(demote(["# 1", "## 1.1"], 1)).deep.eq(["# 1", "### 1.1"]);
+  });
+
+  it("should promote everything", () => {
+    expect(demote(["# 1", "## 1.1"], 0)).deep.eq(["## 1", "### 1.1"]);
+  });
+
+  it("should promote sub sub header", () => {
+    expect(demote(["# 1", "## 1.1", "### 1.1.1", "# 2"], 2)).deep.eq(["# 1", "## 1.1", "#### 1.1.1", "# 2"]);
   });
 });
