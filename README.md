@@ -7,12 +7,12 @@ An extension to qucikly move section in a markdown file.
 ## Features
 
 - [x] move section up / down
-  - [ ] cursor follow
+  - [x] cursor follow
 - [ ] promote / depromote
 
 ## Known Issues
 
-None.
+- [ ] handle code block who contains `#`
 
 ## Release Notes
 
