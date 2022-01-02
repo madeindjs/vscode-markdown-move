@@ -1,5 +1,5 @@
-import { commands, ExtensionContext, Range, window } from "vscode";
-import { moveDown, moveUp } from "./lib";
+import { commands, ExtensionContext, TextEditorEdit, window } from "vscode";
+import { moveDown, moveUp } from "./position-moves";
 
 function showWarning(message: string): void {
   window.showWarningMessage(`Markdown Move: ${message}`);
@@ -9,7 +9,7 @@ function showError(message: string): void {
   window.showErrorMessage(`Markdown Move: ${message}`);
 }
 
-function moveAction(func: (line: string[], positionLine: number) => string[]): void {
+function moveAction(func: (line: string[], positionLine: number, editor: TextEditorEdit) => void): void {
   const textEditor = window.activeTextEditor;
 
   if (textEditor === undefined) {
@@ -19,16 +19,7 @@ function moveAction(func: (line: string[], positionLine: number) => string[]): v
   const content = textEditor.document.getText();
   const lines = content.split("\n");
 
-  const begin = textEditor.document.positionAt(0);
-  const end = textEditor.document.positionAt(content.length);
-
-  const newContent = func(lines, textEditor.selection.active.line).join("\n");
-
-  // if (newContent === content) {
-  //   return showWarning("I cannot perform this action");
-  // }
-
-  textEditor.edit((editBuilder) => editBuilder.replace(new Range(begin, end), newContent));
+  textEditor.edit((editBuilder) => func(lines, textEditor.selection.active.line, editBuilder));
 }
 
 export function activate(context: ExtensionContext) {
