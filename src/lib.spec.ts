@@ -38,6 +38,24 @@ Lorem ipsum
 `;
 
 describe("moveDown", () => {
+  it("should move title", () => {
+    const input = ["# 1", "# 2"];
+
+    expect(moveDown(input, 0)).deep.eq(["# 2", "# 1"]);
+  });
+
+  it("should move title with body", () => {
+    const input = ["# 1", "body 1", "# 2", "body 2"];
+
+    expect(moveDown(input, 0)).deep.eq(["# 2", "body 2", "# 1", "body 1"]);
+  });
+
+  it("should move sub title with body", () => {
+    const input = ["# 1", "body 1", "## 1.1", "body", "# 2", "body 2"];
+
+    expect(moveDown(input, 2)).deep.eq(["# 1", "body 1", "# 2", "body 2", "## 1.1", "body"]);
+  });
+
   it("works", () => {
     const expectedMd = `---
 title: testing markdown
@@ -78,6 +96,18 @@ Lorem ipsum
 });
 
 describe("moveUp", () => {
+  it("should move title", () => {
+    const input = ["# 1", "# 2"];
+
+    expect(moveUp(input, 1)).deep.eq(["# 2", "# 1"]);
+  });
+
+  it("should move title with body", () => {
+    const input = ["# 1", "body 1", "# 2", "body 2"];
+
+    expect(moveUp(input, 3)).deep.eq(["# 2", "body 2", "# 1", "body 1"]);
+  });
+
   it("works", () => {
     const expectedMd = `---
 title: testing markdown

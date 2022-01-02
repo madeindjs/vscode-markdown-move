@@ -6,8 +6,8 @@ export function moveDown(lines: string[], positionLine: number): string[] {
   const newLines = [
     ...lines.slice(0, section[0]),
     ...lines.slice(nextSection[0], nextSection[1] + 1),
-    ...lines.slice(section[0], section[1]),
-    ...lines.slice(nextSection[1]),
+    ...lines.slice(section[0], section[1] + 1),
+    ...lines.slice(nextSection[1] + 1),
   ];
 
   return newLines;
@@ -21,8 +21,8 @@ export function moveUp(lines: string[], positionLine: number): string[] {
   const newLines = [
     ...lines.slice(0, previousSection[0]),
     ...lines.slice(section[0], section[1] + 1),
-    ...lines.slice(previousSection[0], previousSection[1]),
-    ...lines.slice(section[1]),
+    ...lines.slice(previousSection[0], previousSection[1] + 1),
+    ...lines.slice(section[1] + 1),
   ];
 
   return newLines;

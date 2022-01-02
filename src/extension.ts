@@ -16,12 +16,13 @@ function moveAction(func: (line: string[], positionLine: number) => string[]): v
     return showError("You do not have any text editor opened");
   }
 
-  const content = textEditor.document.getText().split("\n");
+  const content = textEditor.document.getText();
+  const lines = content.split("\n");
 
   const begin = textEditor.document.positionAt(0);
   const end = textEditor.document.positionAt(content.length);
 
-  const newContent = func(content, textEditor.selection.active.line).join("\n");
+  const newContent = func(lines, textEditor.selection.active.line).join("\n");
 
   // if (newContent === content) {
   //   return showWarning("I cannot perform this action");
